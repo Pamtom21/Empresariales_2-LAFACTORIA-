@@ -26,7 +26,8 @@ class Factura(db.Model):
     empresa_id = db.Column(db.String(36), db.ForeignKey('empresa.id'), nullable=False)
     valor_neto = db.Column(db.Float, nullable=False)
     valor_con_iva = db.Column(db.Float, nullable=False)
-    productos = db.Column(db.Text, nullable=True)  # Podrías usar JSON si lo prefieres
+    productos = db.Column(db.JSON, nullable=True)  # Podrías usar JSON si lo prefieres
+    fecha = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
         return f'<Factura {self.id}>'
