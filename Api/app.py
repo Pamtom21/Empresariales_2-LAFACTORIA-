@@ -1,8 +1,10 @@
+from flask_cors import CORS
 from flask import Flask, request, jsonify
 from models import db, Empresa, Factura
 from config import Config
 
 app = Flask(__name__)
+CORS(app)
 app.config.from_object(Config)
 
 db.init_app(app)
@@ -37,6 +39,9 @@ def crear_factura():
     db.session.add(nueva_factura)
     db.session.commit()
     return jsonify({"mensaje": "Factura creada", "id": nueva_factura.id}), 201
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
