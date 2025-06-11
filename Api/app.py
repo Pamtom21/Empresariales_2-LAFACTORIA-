@@ -7,10 +7,6 @@ app.config.from_object(Config)
 
 db.init_app(app)
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
-
 @app.route('/empresas', methods=['POST'])
 def crear_empresa():
     data = request.json
@@ -39,4 +35,7 @@ def crear_factura():
     return jsonify({"mensaje": "Factura creada", "id": nueva_factura.id}), 201
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()  # crear tablas al iniciar la app
     app.run(debug=True)
+
