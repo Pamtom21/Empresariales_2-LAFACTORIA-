@@ -23,7 +23,7 @@ El endpoint recibe un JSON con la siguiente estructura:
     }
   ]
 }
-en el caso de resivir bien los datos este respondera con esto
+en el caso de recibir bien los datos este respondera con esto
 {
   "mensaje": "Factura creada y enviada correctamente",
   "id": "7df5a29c-12f3-4d39-a8a4-b891ae5e9b1c",  // ID interno en la base de datos

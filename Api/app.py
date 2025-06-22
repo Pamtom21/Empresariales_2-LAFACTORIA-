@@ -80,6 +80,28 @@ def crear_factura():
         "valor_con_iva": total,
         "libredte": resultado_dte
     }), 201
+@app.route('/empresas/buscar', methods=['POST'])
+def buscar_empresa_por_rut():
+    data = request.json
+    rut = data.get('rut')
+
+    if not rut:
+        return jsonify({'error': 'Debe proporcionar un RUT'}), 400
+
+    empresa = Empresa.query.filter_by(rut=rut).first()
+
+    if not empresa:
+        return jsonify({'error': 'Empresa no encontrada'}), 404
+
+    return jsonify({
+        'id': empresa.id,
+        'nombre': empresa.nombre,
+        'rut': empresa.rut,
+        'giro': empresa.giro,
+        'direccion': empresa.direccion,
+        'correo': empresa.correo
+    })
+
 
 
 
