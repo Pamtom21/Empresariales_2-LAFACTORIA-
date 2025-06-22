@@ -1,10 +1,8 @@
-from flask_cors import CORS
 from flask import Flask, request, jsonify
 from models import db, Empresa, Factura
 from config import Config
 
 app = Flask(__name__)
-CORS(app)
 app.config.from_object(Config)
 
 db.init_app(app)
