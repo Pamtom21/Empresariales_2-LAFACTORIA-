@@ -2,12 +2,14 @@ from flask import Flask, request, jsonify
 from models import db, Empresa, Factura
 from config import Config
 from servicios.libredte import enviar_dte
+from flask_cors import CORS
 
 
 
 app = Flask(__name__)
-app.config.from_object(Config)
 
+app.config.from_object(Config)
+CORS(app)
 db.init_app(app)
 
 @app.route('/empresas', methods=['POST'])

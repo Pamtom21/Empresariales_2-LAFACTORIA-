@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const API = 'http://localhost:5000/empresas';
+const API = `${process.env.REACT_APP_API}/empresas`;
 
 function EmpresaForm() {
   const [form, setForm] = useState({
@@ -26,6 +26,7 @@ function EmpresaForm() {
     if (res.ok) {
       alert("✅ Empresa creada correctamente");
       setForm({ nombre: '', rut: '', giro: '', direccion: '', correo: '' });
+      console.log("hola")
     } else {
       alert("❌ Error al crear empresa");
     }

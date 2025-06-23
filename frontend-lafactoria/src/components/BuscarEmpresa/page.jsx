@@ -5,7 +5,7 @@ function BuscarEmpresa() {
   const [resultado, setResultado] = useState(null);
 
   const buscarEmpresa = async () => {
-    const res = await fetch('http://localhost:5000/empresas/buscar', {
+    const res = await fetch(`${process.env.REACT_APP_API}/empresas/buscar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rut })
