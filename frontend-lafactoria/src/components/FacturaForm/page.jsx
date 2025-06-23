@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const API_FACTURAS = `${process.env.REACT_APP_API}/facturas`;
 
+
 function FacturaForm() {
   const [empresas, setEmpresas] = useState([]);
   const [form, setForm] = useState({
@@ -10,17 +11,9 @@ function FacturaForm() {
     cliente_rut: '',
     cliente_nombre: '',
     cliente_direccion: '',
-    productos: ''
+    producto_nombre: ''
   });
 
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/empresas/buscar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(res => res.json())
-      .then(data => setEmpresas(data));
-  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,12 +22,13 @@ function FacturaForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let productosParsed = null;
-    try {
-      productosParsed = JSON.parse(form.productos || '[]');
-    } catch (err) {
-      return alert("❌ El campo productos debe ser un JSON válido.");
+    const productosParsed = [
+    {
+      nombre: form.producto_nombre,
+      precio: parseFloat(form.valor_neto)
     }
+  ];
+
 
     const payload = {
       empresa_id: form.empresa_id,
@@ -45,6 +39,7 @@ function FacturaForm() {
       productos: productosParsed
     };
 
+    console.log("Payload que se envía:", payload);
     const res = await fetch(API_FACTURAS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,7 +55,7 @@ function FacturaForm() {
         cliente_rut: '',
         cliente_nombre: '',
         cliente_direccion: '',
-        productos: ''
+        producto_nombre: ''
       });
     } else {
       const err = await res.json();
@@ -171,16 +166,20 @@ function FacturaForm() {
         </div>
 
         {/* Productos */}
+        {/* Nombre del Producto */}
         <div className="mb-3">
-          <label className="form-label">Productos (JSON)</label>
-          <textarea
+          <label className="form-label">Nombre del Producto</label>
+          <input
+            type="text"
             className="form-control"
-            name="productos"
-            placeholder='[{"nombre": "prod1", "precio": 1000}]'
-            value={form.productos}
+            name="producto_nombre"
+            placeholder="Ej: Servicio de Asesoría"
+            value={form.producto_nombre}
             onChange={handleChange}
+            required
           />
         </div>
+
 
         <button type="submit" className="btn btn-success w-100">Generar Factura</button>
       </form>
