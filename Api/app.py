@@ -82,7 +82,7 @@ def crear_factura():
         "mensaje": "Factura creada y enviada correctamente",
         "id": nueva_factura.id,
         "valor_con_iva": total,
-        "libredte": resultado_dte
+        #"libredte": resultado_dte
     }), 201
 @app.route('/empresas/buscar', methods=['POST'])
 def buscar_empresa_por_rut():
