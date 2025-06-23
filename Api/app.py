@@ -11,6 +11,8 @@ app = Flask(__name__)
 app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 @app.route('/empresas', methods=['POST'])
 def crear_empresa():
