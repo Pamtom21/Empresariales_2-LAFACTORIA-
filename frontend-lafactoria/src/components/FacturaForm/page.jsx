@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const API_FACTURAS = 'http://localhost:5000/facturas';
-const API_EMPRESAS = 'http://localhost:5000/empresas';
+const API_FACTURAS = `${process.env.REACT_APP_API}/facturas`;
+const API_EMPRESAS = `${process.env.REACT_APP_API}/empresas`;
 
 function FacturaForm() {
   const [empresas, setEmpresas] = useState([]);
