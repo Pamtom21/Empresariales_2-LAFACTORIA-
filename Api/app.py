@@ -74,7 +74,7 @@ def crear_factura():
         valor_neto=valor_neto,
         valor_con_iva=total,
         productos=str(productos),
-        fecha=datetime.utcnow()
+        fecha=datetime.now(datetime.timezone.utc)
     )
     db.session.add(nueva_factura)
     db.session.commit()
