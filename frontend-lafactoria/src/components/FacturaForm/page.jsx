@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
 const API_FACTURAS = `${process.env.REACT_APP_API}/facturas`;
-const API_EMPRESAS = `${process.env.REACT_APP_API}/empresas`;
 
 function FacturaForm() {
   const [empresas, setEmpresas] = useState([]);
   const [form, setForm] = useState({
     empresa_id: '',
     valor_neto: '',
-    valor_con_iva: '',
+    cliente_rut: '',
+    cliente_nombre: '',
+    cliente_direccion: '',
     productos: ''
   });
 
   useEffect(() => {
-  fetch('http://localhost:5000/empresas/list', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  })
-    .then(res => res.json())
-    .then(data => setEmpresas(data));
-}, []);
-
+    fetch(`${process.env.REACT_APP_API}/empresas/buscar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setEmpresas(data));
+  }, []);
 
   const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value});
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     let productosParsed = null;
     try {
       productosParsed = JSON.parse(form.productos || '[]');
@@ -35,17 +36,35 @@ function FacturaForm() {
       return alert("❌ El campo productos debe ser un JSON válido.");
     }
 
+    const payload = {
+      empresa_id: form.empresa_id,
+      valor_neto: parseFloat(form.valor_neto),
+      cliente_rut: form.cliente_rut,
+      cliente_nombre: form.cliente_nombre,
+      cliente_direccion: form.cliente_direccion,
+      productos: productosParsed
+    };
+
     const res = await fetch(API_FACTURAS, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, productos: productosParsed })
+      body: JSON.stringify(payload)
     });
 
     if (res.ok) {
-      alert("✅ Factura creada correctamente");
-      setForm({ empresa_id: '', valor_neto: '', valor_con_iva: '', productos: '' });
+      const json = await res.json();
+      alert(`✅ Factura creada: ${json.mensaje}`);
+      setForm({
+        empresa_id: '',
+        valor_neto: '',
+        cliente_rut: '',
+        cliente_nombre: '',
+        cliente_direccion: '',
+        productos: ''
+      });
     } else {
-      alert("❌ Error al crear factura");
+      const err = await res.json();
+      alert(`❌ Error al crear factura:\n${err.error || 'Revisar campos'}`);
     }
   };
 
@@ -53,46 +72,105 @@ function FacturaForm() {
     <div className="card p-4 shadow-sm mb-4">
       <h2 className="mb-3">Crear Factura</h2>
       <form onSubmit={handleSubmit}>
+
+        {/* Buscar Empresa por RUT */}
         <div className="mb-3">
-          <label className="form-label">Empresa</label>
-          <select
-            className="form-select"
-            name="empresa_id"
-            value={form.empresa_id}
+          <label className="form-label">RUT Empresa</label>
+          <input
+            type="text"
+            className="form-control"
+            name="buscar_rut"
+            placeholder="Ej: 11111111-1"
             onChange={handleChange}
-            required
-          >
-            <option value="">Selecciona una empresa</option>
-            {empresas.map(emp => (
-              <option key={emp.id} value={emp.id}>{emp.nombre}</option>
-            ))}
-          </select>
+            onBlur={async () => {
+              try {
+                const res = await fetch(`${process.env.REACT_APP_API}/empresas/buscar`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ rut: form.buscar_rut })
+                });
+
+                if (!res.ok) throw await res.json();
+
+                const empresa = await res.json();
+
+                // Rellenar empresa y cliente automáticamente
+                setEmpresas([empresa]);
+                setForm(prev => ({
+                  ...prev,
+                  empresa_id: empresa.id,
+                  cliente_rut: empresa.rut,
+                  cliente_nombre: empresa.nombre,
+                  cliente_direccion: empresa.direccion
+                }));
+              } catch (err) {
+                alert(`❌ Empresa no encontrada:\n${err.error || 'RUT inválido'}`);
+                setEmpresas([]);
+                setForm(prev => ({
+                  ...prev,
+                  empresa_id: '',
+                  cliente_rut: '',
+                  cliente_nombre: '',
+                  cliente_direccion: ''
+                }));
+              }
+            }}
+          />
         </div>
 
+
+
+        {/* Valor Neto */}
         <div className="mb-3">
           <label className="form-label">Valor Neto</label>
           <input
+            type="number"
             className="form-control"
             name="valor_neto"
-            type="number"
             value={form.valor_neto}
             onChange={handleChange}
             required
           />
         </div>
 
+        {/* Cliente */}
         <div className="mb-3">
-          <label className="form-label">Valor con IVA</label>
+          <label className="form-label">RUT del Cliente</label>
           <input
+            type="text"
             className="form-control"
-            name="valor_con_iva"
-            type="number"
-            value={form.valor_con_iva}
+            name="cliente_rut"
+            value={form.cliente_rut}
             onChange={handleChange}
             required
           />
         </div>
 
+        <div className="mb-3">
+          <label className="form-label">Nombre del Cliente</label>
+          <input
+            type="text"
+            className="form-control"
+            name="cliente_nombre"
+            value={form.cliente_nombre}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Dirección del Cliente</label>
+          <input
+            type="text"
+            className="form-control"
+            name="cliente_direccion"
+            value={form.cliente_direccion}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Productos */}
         <div className="mb-3">
           <label className="form-label">Productos (JSON)</label>
           <textarea
@@ -104,7 +182,7 @@ function FacturaForm() {
           />
         </div>
 
-        <button className="btn btn-success" type="submit">Generar Factura</button>
+        <button type="submit" className="btn btn-success w-100">Generar Factura</button>
       </form>
     </div>
   );
