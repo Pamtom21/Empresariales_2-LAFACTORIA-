@@ -3,7 +3,7 @@ from models import db, Empresa, Factura
 from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
-
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -73,7 +73,8 @@ def crear_factura():
         empresa_id=data['empresa_id'],
         valor_neto=valor_neto,
         valor_con_iva=total,
-        productos=str(productos)
+        productos=str(productos),
+        fecha=datetime.utcnow()
     )
     db.session.add(nueva_factura)
     db.session.commit()
