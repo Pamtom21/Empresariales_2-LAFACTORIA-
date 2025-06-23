@@ -31,7 +31,7 @@ function FacturaForm() {
 
 
     const payload = {
-      empresa_id: form.empresa_id,
+      empresa_id: "4d1eb3d5-a5fc-4089-885a-bb3d4e012b59",
       valor_neto: parseFloat(form.valor_neto),
       cliente_rut: form.cliente_rut,
       cliente_nombre: form.cliente_nombre,
