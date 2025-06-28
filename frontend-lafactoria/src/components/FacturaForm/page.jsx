@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_FACTURAS = 'http://localhost:5000/facturas';
-const API_EMPRESAS = 'http://localhost:5000/empresas';
+const API = process.env.REACT_APP_API;
 
 function FacturaForm() {
   const [empresas, setEmpresas] = useState([]);
@@ -13,17 +12,16 @@ function FacturaForm() {
   });
 
   useEffect(() => {
-  fetch('http://localhost:5000/empresas/list', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  })
-    .then(res => res.json())
-    .then(data => setEmpresas(data));
-}, []);
-
+    fetch(`${API}/empresas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setEmpresas(data));
+  }, []);
 
   const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value});
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -35,7 +33,7 @@ function FacturaForm() {
       return alert("❌ El campo productos debe ser un JSON válido.");
     }
 
-    const res = await fetch(API_FACTURAS, {
+    const res = await fetch(`${API}/facturas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...form, productos: productosParsed })

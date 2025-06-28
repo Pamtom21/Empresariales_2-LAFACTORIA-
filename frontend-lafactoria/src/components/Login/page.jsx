@@ -1,15 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Tab, Tabs, Form, Button, Card } from 'react-bootstrap';
+
+const API = process.env.REACT_APP_API;
 
 function Login() {
-  const [correo, setCorreo] = useState('');
+  const [tab, setTab] = useState('login');
+  const [rutLogin, setRutLogin] = useState('');
   const [clave, setClave] = useState('');
+  const [razon, setRazon] = useState('');
+  const [rut, setRut] = useState('');
+  const [giro, setGiro] = useState('');
+  const [correoReg, setCorreoReg] = useState('');
+  const [claveReg, setClaveReg] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-
-    if (correo === 'admin@admin.com' && clave === '1234') {
+    if (rutLogin === '21822676-0' && clave === '1234') {
       alert('Inicio de sesión exitoso ✅');
       navigate('/dashboard');
     } else {
@@ -17,43 +25,111 @@ function Login() {
     }
   };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const nuevaEmpresa = {
+      nombre: razon,
+      rut,
+      giro,
+      correo: correoReg,
+      clave: claveReg
+    };
+
+    console.log("Registro enviado:", nuevaEmpresa);
+    alert(`Empresa "${razon}" registrada correctamente`);
+    setTab('login');
+  };
+
   return (
-    <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
-      <div className="card p-4 shadow-sm" style={{ width: '100%', maxWidth: '400px' }}>
-        <h2 className="mb-3 text-center">Iniciar Sesión</h2>
-
-        <p className="text-muted small text-center mb-2">
-          <strong>Credenciales de prueba:</strong><br />
-          Usuario: admin@admin.com<br />
-          Clave: 1234
-        </p>
-
-        <form onSubmit={handleLogin}>
-          <div className="mb-3">
-            <label className="form-label">Correo</label>
-            <input
-              type="email"
-              className="form-control"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-              required
-              placeholder="admin@admin.com"
-            />
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Contraseña</label>
-            <input
-              type="password"
-              className="form-control"
-              value={clave}
-              onChange={(e) => setClave(e.target.value)}
-              required
-              placeholder="1234"
-            />
-          </div>
-          <button className="btn btn-primary w-100" type="submit">Ingresar</button>
-        </form>
+    <div className="login-container">
+      <div className="login-header">
+        <h1>LaFactoria</h1>
       </div>
+
+      <Card className="login-card shadow-lg">
+        <Tabs activeKey={tab} onSelect={(k) => setTab(k)} className="mb-4" justify>
+          <Tab eventKey="login" title="Iniciar Sesión">
+            <Form onSubmit={handleLogin}>
+              <Form.Group className="mb-3">
+                <Form.Label>RUT</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={rutLogin}
+                  onChange={(e) => setRutLogin(e.target.value)}
+                  required
+                  placeholder="21822676-0"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Contraseña</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={clave}
+                  onChange={(e) => setClave(e.target.value)}
+                  required
+                  placeholder="1234"
+                />
+              </Form.Group>
+              <Button type="submit" variant="primary" className="w-100">Ingresar</Button>
+              <p className="mt-3 text-muted text-center small">
+                <strong>Credenciales de prueba:</strong><br />
+                RUT: 21822676-0 | Clave: 1234
+              </p>
+            </Form>
+          </Tab>
+
+          <Tab eventKey="register" title="Registrar Empresa">
+            <Form onSubmit={handleRegister}>
+              <Form.Group className="mb-3">
+                <Form.Label>Razón Social</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={razon}
+                  onChange={(e) => setRazon(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>RUT</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={rut}
+                  onChange={(e) => setRut(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Giro</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={giro}
+                  onChange={(e) => setGiro(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Correo</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={correoReg}
+                  onChange={(e) => setCorreoReg(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Contraseña</Form.Label>
+                <Form.Control
+                  type="password"
+                  value={claveReg}
+                  onChange={(e) => setClaveReg(e.target.value)}
+                  required
+                />
+              </Form.Group>
+              <Button type="submit" variant="success" className="w-100">Registrar Empresa</Button>
+            </Form>
+          </Tab>
+        </Tabs>
+      </Card>
     </div>
   );
 }

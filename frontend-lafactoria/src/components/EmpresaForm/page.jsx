@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const API = 'http://localhost:5000/empresas';
+const API = process.env.REACT_APP_API;
 
 function EmpresaForm() {
   const [form, setForm] = useState({
@@ -12,12 +12,12 @@ function EmpresaForm() {
   });
 
   const handleChange = (e) => {
-    setForm({...form, [e.target.name]: e.target.value});
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(API, {
+    const res = await fetch(`${API}/empresas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
