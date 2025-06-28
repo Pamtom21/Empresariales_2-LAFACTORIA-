@@ -3,9 +3,13 @@ import { Routes, Route, Link } from 'react-router-dom';
 import EmpresaForm from '../EmpresaForm/page.jsx';
 import FacturaForm from '../FacturaForm/page.jsx';
 import BuscarEmpresa from '../BuscarEmpresa/page.jsx';
+import Header from '../Header';
 
 function Dashboard() {
   return (
+    <>
+      <Header />
+      <div style={{ paddingTop: '70px' }}>
     <div className="container py-4">
       <h1 className="mb-4">LaFactoria</h1>
 
@@ -21,7 +25,8 @@ function Dashboard() {
         <Route path="buscar" element={<BuscarEmpresa />} />
         <Route path="" element={<p className="text-muted">Selecciona una opción para comenzar.</p>} />
       </Routes>
-    </div>
+    </div></div>
+    </>
   );
 }
 

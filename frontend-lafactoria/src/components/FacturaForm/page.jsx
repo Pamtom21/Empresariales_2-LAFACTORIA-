@@ -7,8 +7,7 @@ function FacturaForm() {
   const [form, setForm] = useState({
     empresa_id: '',
     valor_neto: '',
-    valor_con_iva: '',
-    productos: ''
+    producto: ''
   });
 
   useEffect(() => {
@@ -26,30 +25,32 @@ function FacturaForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let productosParsed = null;
-    try {
-      productosParsed = JSON.parse(form.productos || '[]');
-    } catch (err) {
-      return alert("❌ El campo productos debe ser un JSON válido.");
-    }
+
+    const productosParsed = [{ nombre: form.producto }];
 
     const res = await fetch(`${API}/facturas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, productos: productosParsed })
+      body: JSON.stringify({
+        empresa_id: form.empresa_id,
+        valor_neto: form.valor_neto,
+        productos: productosParsed
+      })
     });
 
     if (res.ok) {
-      alert("✅ Factura creada correctamente");
-      setForm({ empresa_id: '', valor_neto: '', valor_con_iva: '', productos: '' });
+      const data = await res.json();
+      alert(`✅ Factura creada. Valor con IVA: $${data.valor_con_iva}`);
+      setForm({ empresa_id: '', valor_neto: '', producto: '' });
     } else {
       alert("❌ Error al crear factura");
     }
   };
 
+
   return (
-    <div className="card p-4 shadow-sm mb-4">
-      <h2 className="mb-3">Crear Factura</h2>
+    <div className="card p-4 shadow-sm mb-5" style={{ maxWidth: '500px', margin: 'auto' }}>
+      <h2 className="mb-4 text-center fw-bold text-primary">Nueva Factura</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">Empresa</label>
@@ -73,36 +74,41 @@ function FacturaForm() {
             className="form-control"
             name="valor_neto"
             type="number"
+            min="0"
             value={form.valor_neto}
             onChange={handleChange}
             required
           />
         </div>
-
         <div className="mb-3">
           <label className="form-label">Valor con IVA</label>
           <input
             className="form-control"
             name="valor_con_iva"
             type="number"
+            min="0"
             value={form.valor_con_iva}
+            readOnly
+          />
+        </div>
+
+
+            
+        <div className="mb-4">
+          <label className="form-label">Nombre del Producto</label>
+          <input
+            className="form-control"
+            name="producto"
+            placeholder="Ej: Monitor LG"
+            value={form.producto}
             onChange={handleChange}
             required
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Productos (JSON)</label>
-          <textarea
-            className="form-control"
-            name="productos"
-            placeholder='[{"nombre": "prod1", "precio": 1000}]'
-            value={form.productos}
-            onChange={handleChange}
-          />
-        </div>
-
-        <button className="btn btn-success" type="submit">Generar Factura</button>
+        <button className="btn btn-success w-100" type="submit">
+          💾 Generar Factura
+        </button>
       </form>
     </div>
   );
