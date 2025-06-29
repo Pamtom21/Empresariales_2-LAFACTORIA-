@@ -13,8 +13,8 @@ function Header() {
           Perfil
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <Dropdown.Item onClick={() => navigate('/Perfil')} >Mi cuenta</Dropdown.Item>
-          <Dropdown.Item>Configuración</Dropdown.Item>
+          <Dropdown.Item onClick={() => navigate('/dashboard/perfil')} >Mi cuenta</Dropdown.Item>
+          <Dropdown.Item onClick={() => navigate('/dashboard/configuracion')} >Configuración</Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Item onClick={() => navigate('/')}>Cerrar sesión</Dropdown.Item>
         </Dropdown.Menu>
