@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 
+const API = process.env.REACT_APP_API;
+
 function BuscarEmpresa() {
   const [rut, setRut] = useState('');
   const [resultado, setResultado] = useState(null);
 
   const buscarEmpresa = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API}/empresas/buscar`, {
+    const res = await fetch(`${API}/empresas/buscar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rut })

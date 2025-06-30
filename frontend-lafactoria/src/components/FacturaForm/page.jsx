@@ -1,19 +1,23 @@
 import React, { useState, useEffect } from 'react';
 
-const API_FACTURAS = `${process.env.REACT_APP_API}/facturas`;
-
+const API = process.env.REACT_APP_API;
 
 function FacturaForm() {
   const [empresas, setEmpresas] = useState([]);
   const [form, setForm] = useState({
     empresa_id: '',
     valor_neto: '',
-    cliente_rut: '',
-    cliente_nombre: '',
-    cliente_direccion: '',
-    producto_nombre: ''
+    producto: ''
   });
 
+  useEffect(() => {
+    fetch(`${API}/empresas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setEmpresas(data));
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,50 +26,32 @@ function FacturaForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const productosParsed = [
-    {
-      nombre: form.producto_nombre,
-      precio: parseFloat(form.valor_neto)
-    }
-  ];
+    const productosParsed = [{ nombre: form.producto }];
 
-
-    const payload = {
-      empresa_id: "4d1eb3d5-a5fc-4089-885a-bb3d4e012b59",
-      valor_neto: parseFloat(form.valor_neto),
-      cliente_rut: form.cliente_rut,
-      cliente_nombre: form.cliente_nombre,
-      cliente_direccion: form.cliente_direccion,
-      productos: productosParsed
-    };
-
-    console.log("Payload que se envía:", payload);
-    const res = await fetch(API_FACTURAS, {
+    const res = await fetch(`${API}/facturas`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        empresa_id: form.empresa_id,
+        valor_neto: form.valor_neto,
+        productos: productosParsed
+      })
     });
 
     if (res.ok) {
-      const json = await res.json();
-      alert(`✅ Factura creada: ${json.mensaje}`);
-      setForm({
-        empresa_id: '',
-        valor_neto: '',
-        cliente_rut: '',
-        cliente_nombre: '',
-        cliente_direccion: '',
-        producto_nombre: ''
-      });
+      const data = await res.json();
+      alert(`✅ Factura creada. Valor con IVA: $${data.valor_con_iva}`);
+      setForm({ empresa_id: '', valor_neto: '', producto: '' });
     } else {
       const err = await res.json();
       alert(`❌ Error al crear factura:\n${err.error || 'Revisar campos'}`);
     }
   };
 
+
   return (
-    <div className="card p-4 shadow-sm mb-4">
-      <h2 className="mb-3">Crear Factura</h2>
+    <div className="card p-4 shadow-sm mb-5" style={{ maxWidth: '500px', margin: 'auto' }}>
+      <h2 className="mb-4 text-center fw-bold text-primary">Nueva Factura</h2>
       <form onSubmit={handleSubmit}>
 
         {/* Buscar Empresa por RUT */}
@@ -122,66 +108,43 @@ function FacturaForm() {
             type="number"
             className="form-control"
             name="valor_neto"
+            type="number"
+            min="0"
             value={form.valor_neto}
             onChange={handleChange}
             required
           />
         </div>
-
-        {/* Cliente */}
-        <div className="mb-3">
-          <label className="form-label">RUT del Cliente</label>
-          <input
-            type="text"
-            className="form-control"
-            name="cliente_rut"
-            value={form.cliente_rut}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
         <div className="mb-3">
           <label className="form-label">Nombre del Cliente</label>
           <input
             type="text"
             className="form-control"
-            name="cliente_nombre"
-            value={form.cliente_nombre}
-            onChange={handleChange}
-            required
+            name="valor_con_iva"
+            type="number"
+            min="0"
+            value={form.valor_con_iva}
+            readOnly
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Dirección del Cliente</label>
-          <input
-            type="text"
-            className="form-control"
-            name="cliente_direccion"
-            value={form.cliente_direccion}
-            onChange={handleChange}
-            required
-          />
-        </div>
 
-        {/* Productos */}
-        {/* Nombre del Producto */}
-        <div className="mb-3">
+            
+        <div className="mb-4">
           <label className="form-label">Nombre del Producto</label>
           <input
-            type="text"
             className="form-control"
-            name="producto_nombre"
-            placeholder="Ej: Servicio de Asesoría"
-            value={form.producto_nombre}
+            name="producto"
+            placeholder="Ej: Monitor LG"
+            value={form.producto}
             onChange={handleChange}
             required
           />
         </div>
 
-
-        <button type="submit" className="btn btn-success w-100">Generar Factura</button>
+        <button className="btn btn-success w-100" type="submit">
+          💾 Generar Factura
+        </button>
       </form>
     </div>
   );
