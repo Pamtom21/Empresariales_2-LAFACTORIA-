@@ -38,7 +38,7 @@ const handleRegister = async (e) => {
 
   // Enviar la solicitud POST al backend con los datos del registro
   try {
-    const response = await fetch('/register', {
+    const response = await fetch(`${API}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json', // Asegúrate de que sea JSON
