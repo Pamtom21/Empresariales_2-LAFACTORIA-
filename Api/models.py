@@ -1,3 +1,4 @@
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 import uuid
 
@@ -13,7 +14,11 @@ class Empresa(db.Model):
     direccion = db.Column(db.String(255), nullable=True)
     correo = db.Column(db.String(255), nullable=True)
 
+    # Relación con Factura: Una empresa puede tener muchas facturas
     facturas = db.relationship('Factura', backref='empresa', lazy=True)
+
+    # Relación muchos a uno con Usuario (Cada empresa pertenece a un usuario)
+    usuario_id = db.Column(db.String(36), db.ForeignKey('usuario.id'), nullable=False)
 
     def __repr__(self):
         return f'<Empresa {self.nombre}>'
@@ -26,8 +31,34 @@ class Factura(db.Model):
     empresa_id = db.Column(db.String(36), db.ForeignKey('empresa.id'), nullable=False)
     valor_neto = db.Column(db.Float, nullable=False)
     valor_con_iva = db.Column(db.Float, nullable=False)
-    productos = db.Column(db.JSON, nullable=True)  # Podrías usar JSON si lo prefieres
+    productos = db.Column(db.JSON, nullable=True)  # Aquí podrías usar JSON para almacenar detalles de productos
     fecha = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
         return f'<Factura {self.id}>'
+class Usuario(db.Model):
+    __tablename__ = 'usuario'
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    razon = db.Column(db.String(255), nullable=False)
+    giro = db.Column(db.String(255), nullable=False)
+    correo = db.Column(db.String(255), unique=True, nullable=False)
+    rut = db.Column(db.String(255), unique=True, nullable=False)
+    clave = db.Column(db.String(255), nullable=False)
+
+    # Relación uno a muchos con Empresa (Un usuario puede tener muchas empresas)
+    empresas = db.relationship('Empresa', backref='usuario', lazy=True)
+
+    # Método para encriptar la contraseña antes de guardarla en la base de datos
+    def set_password(self, password):
+        self.clave = generate_password_hash(password)
+
+    # Método para verificar si la contraseña ingresada es correcta
+    def check_password(self, password):
+        return check_password_hash(self.clave, password)
+
+    def __repr__(self):
+        return f'<Usuario {self.Razon}>'
+
+
+

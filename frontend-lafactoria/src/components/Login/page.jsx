@@ -25,20 +25,42 @@ function Login() {
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    const nuevaEmpresa = {
-      nombre: razon,
-      rut,
-      giro,
-      correo: correoReg,
-      clave: claveReg
-    };
+const handleRegister = async (e) => {
+  e.preventDefault();
 
-    console.log("Registro enviado:", nuevaEmpresa);
-    alert(`Empresa "${razon}" registrada correctamente`);
-    setTab('login');
+  const nuevaEmpresa = {
+    razon: razon,
+    rut : rut,
+    giro : giro,
+    correo: correoReg,
+    clave: claveReg
   };
+
+  // Enviar la solicitud POST al backend con los datos del registro
+  try {
+    const response = await fetch('/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Asegúrate de que sea JSON
+      },
+      body: JSON.stringify(nuevaEmpresa), // Convierte los datos a JSON
+    });
+
+    if (response.ok) {
+      // Si la respuesta es correcta, muestra mensaje
+      const data = await response.json();
+      alert(`Empresa "${razon}" registrada correctamente`);
+      setTab('login');
+    } else {
+      // Si hay error en la respuesta
+      alert('Error al registrar la empresa');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Hubo un problema al conectar con el servidor');
+  }
+};
+
 
   return (
     <div className="login-container">

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, Empresa, Factura
+from models import db, Empresa, Factura, Usuario
 from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
@@ -13,6 +13,45 @@ CORS(app)
 db.init_app(app)
 with app.app_context():
     db.create_all()
+from flask import request, jsonify
+from werkzeug.security import generate_password_hash
+
+@app.route('/register', methods=['POST'])
+def reg():
+    data = request.json  # Obtener los datos enviados por el cliente
+
+    # Crear el nuevo usuario con los datos enviados
+    nuevo_usuario = Usuario(
+        razon=data['razon'],
+        giro=data['giro'],
+        correo=data['correo'],
+        rut=data['rut']
+    )
+
+    # Encriptar la contraseña antes de guardarla
+    nuevo_usuario.set_password(data['clave'])
+
+    try:
+        # Guardar el nuevo usuario en la base de datos
+        db.session.add(nuevo_usuario)
+        db.session.commit()
+
+        # Respuesta exitosa
+        return jsonify({"message": "Usuario registrado correctamente"}), 201
+    except Exception as e:
+        db.session.rollback()  # Deshacer cambios si algo falla
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/login', methods = ['POST'])
+def log():
+    data = request.json
+    rut = data.get('rut')
+    clave = data.get('clave')
+    usuario = Usuario.query.filter_by(rut=rut).first()
+    if usuario and usuario.check_password(clave):
+        return jsonify({'message': 'Credenciales correctas', 'Nombre': Usuario.razon}), 200
+    else:
+        return jsonify({'message: Credenciales no corresponden'}), 400
 
 @app.route('/empresas', methods=['POST'])
 def crear_empresa():
