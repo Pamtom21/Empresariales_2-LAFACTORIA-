@@ -58,7 +58,7 @@ class Usuario(db.Model):
         return check_password_hash(self.clave, password)
 
     def __repr__(self):
-        return f'<Usuario {self.Razon}>'
+        return f'<Usuario {self.razon}>'
     
 class Pago(db.Model):
     __tablename__ = 'pago'
