@@ -9,7 +9,10 @@ function BuscarEmpresa() {
   const buscarEmpresa = async () => {
     const res = await fetch(`${API}/empresas/buscar`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+       },
+      
       body: JSON.stringify({ rut })
     });
 
