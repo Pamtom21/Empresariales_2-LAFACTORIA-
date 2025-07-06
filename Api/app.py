@@ -180,6 +180,26 @@ def buscar_empresa_por_rut():
         'correo': empresa.correo
     })
 
+@app.route('/procesar_carrito', methods=['POST'])
+def procesar_carrito():
+    data = request.json
+    carrito = data.get('carrito', [])
+
+    if not carrito:
+        return jsonify({"error": "El carrito está vacío"}), 400
+
+    total = sum(producto.get('precio', 0) for producto in carrito)
+
+    print("Productos recibidos:")
+    for p in carrito:
+        print(f"- {p['nombre']} (${p['precio']})")
+
+    print(f"Total: ${total}")
+
+    return jsonify({
+        "mensaje": "Carrito recibido correctamente",
+        "total": total
+    }), 200
 
 
 
