@@ -6,7 +6,7 @@ from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager, set_access_cookies
-
+import traceback
 
 app = Flask(__name__)
 
@@ -69,50 +69,48 @@ def log():
     else:
         return jsonify({'message': 'Credenciales incorrectas'}), 400
 
+
+
 @app.route('/empresas', methods=['POST'])
-@jwt_required()  # Este decorador asegura que el usuario esté autenticado
+@jwt_required()
 def crear_empresa():
     try:
-        print(request.headers)
         data = request.json
-        
-        # Validar que los campos esenciales estén presentes
+        print("📦 Datos recibidos:", data)
+
         if 'nombre' not in data or 'rut' not in data:
             return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut)"}), 400
-        
-        # Obtener el usuario_id del token JWT
-        usuario_id = get_jwt_identity()  # El ID del usuario autenticado
-        
-        # Verificar si el 'rut' ya existe en la base de datos
+
+        usuario_id = get_jwt_identity()
+        print("🧑 ID del usuario autenticado:", usuario_id)
+
         if Empresa.query.filter_by(rut=data['rut']).first():
             return jsonify({"mensaje": "El rut ya está registrado"}), 400
 
-        # Verificar si el usuario con el 'usuario_id' existe
         usuario = Usuario.query.get(usuario_id)
         if not usuario:
             return jsonify({"mensaje": "Usuario no encontrado"}), 400
 
-        # Crear la nueva empresa
         nueva_empresa = Empresa(
             nombre=data['nombre'],
             rut=data['rut'],
-            giro=data.get('giro'),  # Uso de .get() para campos opcionales
+            giro=data.get('giro'),
             direccion=data.get('direccion'),
             correo=data.get('correo'),
-            usuario_id=usuario_id  # Asignación del usuario_id
+            usuario_id=usuario_id
         )
 
-        # Añadir la empresa a la base de datos
         db.session.add(nueva_empresa)
         db.session.commit()
 
-        # Responder con éxito
         return jsonify({"mensaje": "Empresa creada", "id": nueva_empresa.id}), 201
-    
+
     except Exception as e:
-        # Si ocurre un error, hacer rollback y devolver el error
+        print("❌ ERROR AL CREAR EMPRESA:", e)
+        traceback.print_exc()  # <--- Esto mostrará la traza completa del error
         db.session.rollback()
         return jsonify({"mensaje": "Error al crear la empresa", "error": str(e)}), 500
+
 
 @app.route('/facturas', methods=['POST'])
 def crear_factura():
