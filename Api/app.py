@@ -85,17 +85,17 @@ def crear_empresa():
         print("📦 Datos recibidos:", data)
 
         if 'nombre' not in data or 'rut' not in data:
-            return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut)"}), 400
+            return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut)"}), 401
 
         usuario_id = get_jwt_identity()
         print("🧑 ID del usuario autenticado:", usuario_id)
 
         if Empresas.query.filter_by(rut=data['rut']).first():
-            return jsonify({"mensaje": "El rut ya está registrado"}), 400
+            return jsonify({"mensaje": "El rut ya está registrado"}), 402
 
         usuario = Usuario.query.get(usuario_id)
         if not usuario:
-            return jsonify({"mensaje": "Usuario no encontrado"}), 400
+            return jsonify({"mensaje": "Usuario no encontrado"}), 403
 
         nueva_empresa = Empresas(
             nombre=data['nombre'],
