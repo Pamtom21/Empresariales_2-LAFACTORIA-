@@ -44,7 +44,7 @@ def reg():
 
 
 from flask_jwt_extended import create_access_token
-from flask import make_response
+
 
 @app.route('/login', methods=['POST'])
 def log():
@@ -60,11 +60,10 @@ def log():
         access_token = create_access_token(identity=usuario.rut)
 
         # Crear la respuesta y agregar el token en la cookie
-        response = make_response(jsonify({
+        response = jsonify({
             'message': 'Credenciales correctas',
             'Nombre': usuario.razon
-        }))
-        set_access_cookies(response, access_token)
+        })
 
         return response, 200
     else:

@@ -9,11 +9,6 @@ function Login() {
   const [tab, setTab] = useState('login');
   const [rutLogin, setRutLogin] = useState('');
   const [clave, setClave] = useState('');
-  const [razon, setRazon] = useState('');
-  const [rut, setRut] = useState('');
-  const [giro, setGiro] = useState('');
-  const [correoReg, setCorreoReg] = useState('');
-  const [claveReg, setClaveReg] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -36,12 +31,18 @@ function Login() {
       const result = await response.json();
 
       if (response.ok) {
-        // Guardamos el token en las cookies si el login es exitoso
-        Cookies.set('token', result.token, { expires: 7 }); // El token se guarda por 7 días
+        // Si las credenciales son correctas, guardamos el token en las cookies
+        Cookies.set('access_token', result.token, {
+          expires: 7, // El token expirará en 7 días
+          secure: true,  // Asegura que se envíe solo a través de HTTPS
+          sameSite: 'Strict',  // Protege contra CSRF
+          httpOnly: true,  // Previene el acceso desde JavaScript (mejora la seguridad)
+        });
+
         alert(`Bienvenido ${result.Nombre}`);
-        navigate('/dashboard');
+        navigate('/dashboard'); // Redirigir al dashboard
       } else {
-        alert(result.message);
+        alert(result.message || 'Credenciales incorrectas');
       }
     } catch (error) {
       console.error('Error al intentar iniciar sesión:', error);
