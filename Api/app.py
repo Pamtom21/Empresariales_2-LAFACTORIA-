@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from models import db, Empresa, Factura, Usuario
 from config import Config
+from models import Pago
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
@@ -213,6 +214,44 @@ def procesar_carrito():
         "total": total
     }), 200
 
+@app.route('/procesar_pago', methods=['POST'])
+def procesar_pago():
+    data = request.get_json()
+
+    metodo = data.get('metodo')
+    datos_tarjeta = data.get('datos', {})
+    monto_total = data.get('monto', 0)
+
+    if not metodo:
+        return jsonify({"error": "Método de pago requerido"}), 400
+
+    # Datos si es tarjeta
+    numero = datos_tarjeta.get('numero') if metodo != 'paypal' else None
+    vencimiento = datos_tarjeta.get('vencimiento') if metodo != 'paypal' else None
+    cvv = datos_tarjeta.get('cvv') if metodo != 'paypal' else None
+
+    # Guardar en la base de datos
+    try:
+        nuevo_pago = Pago(
+            metodo=metodo,
+            numero_tarjeta=numero,
+            vencimiento=vencimiento,
+            cvv=cvv,
+            fecha=datetime.now(),
+            monto_total=monto_total
+        )
+
+        db.session.add(nuevo_pago)
+        db.session.commit()
+
+        return jsonify({
+            "mensaje": f"Pago procesado y guardado con {metodo.upper()}",
+            "pago_id": nuevo_pago.id
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Error al guardar el pago", "detalle": str(e)}), 500
 
 
 

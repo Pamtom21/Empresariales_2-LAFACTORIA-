@@ -59,6 +59,20 @@ class Usuario(db.Model):
 
     def __repr__(self):
         return f'<Usuario {self.Razon}>'
+    
+class Pago(db.Model):
+    __tablename__ = 'pago'
+
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    metodo = db.Column(db.String(50), nullable=False)
+    numero_tarjeta = db.Column(db.String(20), nullable=True)
+    vencimiento = db.Column(db.String(10), nullable=True)
+    cvv = db.Column(db.String(4), nullable=True)
+    fecha = db.Column(db.DateTime, nullable=False)
+    monto_total = db.Column(db.Float, nullable=False)
+
+    def __repr__(self):
+        return f'<Pago {self.id} - {self.metodo}>'
 
 
 
