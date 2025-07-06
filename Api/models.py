@@ -5,7 +5,7 @@ import uuid
 db = SQLAlchemy()
 
 class Empresas(db.Model):
-    __tablename__ = 'empresa'
+    __tablename__ = 'empresas'
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nombre = db.Column(db.String(255), nullable=False)
@@ -15,7 +15,7 @@ class Empresas(db.Model):
     correo = db.Column(db.String(255), nullable=True)
 
     # Relación con Factura: Una empresa puede tener muchas facturas
-    facturas = db.relationship('Factura', backref='empresa', lazy=True)
+    facturas = db.relationship('Factura', backref='empresas', lazy=True)
 
     # Relación muchos a uno con Usuario (Cada empresa pertenece a un usuario)
     usuario_id = db.Column(db.String(36), db.ForeignKey('usuario.id'), nullable=False)
@@ -28,7 +28,7 @@ class Factura(db.Model):
     __tablename__ = 'factura'
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    empresa_id = db.Column(db.String(36), db.ForeignKey('empresa.id'), nullable=False)
+    empresa_id = db.Column(db.String(36), db.ForeignKey('empresas.id'), nullable=False)
     valor_neto = db.Column(db.Float, nullable=False)
     valor_con_iva = db.Column(db.Float, nullable=False)
     productos = db.Column(db.JSON, nullable=True)  # Aquí podrías usar JSON para almacenar detalles de productos
@@ -47,7 +47,7 @@ class Usuario(db.Model):
     clave = db.Column(db.String(255), nullable=False)
 
     # Relación uno a muchos con Empresa (Un usuario puede tener muchas empresas)
-    empresas = db.relationship('Empresa', backref='usuario', lazy=True)
+    empresas = db.relationship('Empresas', backref='usuario', lazy=True)
 
     # Método para encriptar la contraseña antes de guardarla en la base de datos
     def set_password(self, password):
