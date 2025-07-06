@@ -21,7 +21,7 @@ function EmpresaForm() {
 
   // Validación de campos antes de enviar
   const validateForm = () => {
-    if (!form.nombre || !form.rut || !form.usuario_id) {
+    if (!form.nombre || !form.rut) {
       return 'Faltan campos obligatorios';
     }
     return null;
