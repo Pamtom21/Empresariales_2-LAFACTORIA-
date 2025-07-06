@@ -15,15 +15,39 @@ function Login() {
   const [claveReg, setClaveReg] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (rutLogin === '21822676-0' && clave === '1234') {
-      alert('Inicio de sesión exitoso ✅');
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const loginData = {
+    rut: rutLogin,
+    clave: claveLogin,
+  };
+
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(loginData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      // Si las credenciales son correctas
+      alert(`Bienvenido ${result.Nombre}`);
       navigate('/dashboard');
     } else {
-      alert('Credenciales incorrectas ❌');
+      // Si las credenciales son incorrectas
+      alert(result.message);
     }
-  };
+  } catch (error) {
+    console.error('Error al intentar iniciar sesión:', error);
+    alert('Error de conexión, intenta de nuevo');
+  }
+};
+
 
 const handleRegister = async (e) => {
   e.preventDefault();

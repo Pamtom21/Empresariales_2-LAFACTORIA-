@@ -42,16 +42,24 @@ def reg():
         db.session.rollback()  # Deshacer cambios si algo falla
         return jsonify({"error": str(e)}), 400
 
-@app.route('/login', methods = ['POST'])
+
+@app.route('/login', methods=['POST'])
 def log():
     data = request.json
     rut = data.get('rut')
     clave = data.get('clave')
+
+    # Buscar al usuario en la base de datos por su rut
     usuario = Usuario.query.filter_by(rut=rut).first()
-    if usuario and usuario.check_password(clave):
-        return jsonify({'message': 'Credenciales correctas', 'Nombre': Usuario.razon}), 200
+
+    if usuario and usuario.check_password(clave):  # Verificamos la contraseña
+        return jsonify({
+            'message': 'Credenciales correctas',
+            'Nombre': usuario.razon
+        }), 200  # Respuesta exitosa
     else:
-        return jsonify({'message: Credenciales no corresponden'}), 400
+        return jsonify({'message': 'Credenciales incorrectas'}), 400  # Respuesta de error
+
 
 @app.route('/empresas', methods=['POST'])
 def crear_empresa():
