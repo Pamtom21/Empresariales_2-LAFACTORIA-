@@ -40,7 +40,7 @@ function EmpresaForm() {
     try {
       // Obtener el token de las cookies (o de localStorage, dependiendo de dónde lo guardaste)
       const token = Cookies.get('token');
-      
+      console.log("TOKEN JWT:", token);
       if (!token) {
         // Si no hay token, redirige al login o muestra un error
         setError('No estás autenticado. Por favor, inicia sesión.');
@@ -63,8 +63,15 @@ function EmpresaForm() {
         setError('');
       } else {
         // Mostrar mensaje de error detallado del backend
-        const data = await res.json();
-        setError(data.mensaje || 'Error al crear empresa');
+        try {
+          const data = await res.json();
+          setError(data.mensaje || 'Error al crear empresa');
+        } catch (e) {
+          const text = await res.text();
+          console.error('Respuesta inesperada:', text);
+          setError('Error inesperado del servidor');
+        }
+
       }
     } catch (error) {
       setError('Error de conexión con el servidor');

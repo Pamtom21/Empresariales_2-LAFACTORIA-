@@ -73,6 +73,7 @@ def log():
 @jwt_required()  # Este decorador asegura que el usuario esté autenticado
 def crear_empresa():
     try:
+        print(request.headers)
         data = request.json
         
         # Validar que los campos esenciales estén presentes
