@@ -11,24 +11,50 @@ function EmpresaForm() {
     correo: ''
   });
 
+  const [error, setError] = useState('');
+  
+  // Manejo de cambios en los inputs
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Validación de campos antes de enviar
+  const validateForm = () => {
+    if (!form.nombre || !form.rut || !form.usuario_id) {
+      return 'Faltan campos obligatorios';
+    }
+    return null;
+  };
+
+  // Enviar formulario al servidor
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`${API}/empresas`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
 
-    if (res.ok) {
-      alert("✅ Empresa creada correctamente");
-      setForm({ nombre: '', rut: '', giro: '', direccion: '', correo: '' });
-      console.log("hola")
-    } else {
-      alert("❌ Error al crear empresa");
+    const errorMessage = validateForm();
+    if (errorMessage) {
+      setError(errorMessage);
+      return;
+    }
+
+    try {
+      // Supongo que el usuario_id se agrega a través del contexto o es capturado del usuario logueado
+      const res = await fetch(`${API}/empresas`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+
+      if (res.ok) {
+        alert("✅ Empresa creada correctamente");
+        setForm({ nombre: '', rut: '', giro: '', direccion: '', correo: '' });
+        setError('');
+      } else {
+        // Mostrar mensaje de error detallado del backend
+        const data = await res.json();
+        setError(data.mensaje || 'Error al crear empresa');
+      }
+    } catch (error) {
+      setError('Error de conexión con el servidor');
     }
   };
 
