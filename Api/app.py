@@ -4,13 +4,13 @@ from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager, set_access_cookies
 
 
 app = Flask(__name__)
 
 app.config.from_object(Config)
-CORS(app)
+CORS(app,supports_credentials=True)
 jwt = JWTManager(app)
 db.init_app(app)
 with app.app_context():
@@ -64,7 +64,7 @@ def log():
             'message': 'Credenciales correctas',
             'Nombre': usuario.razon
         }))
-        response.set_cookie('authToken', access_token, httponly=True, secure=True, samesite='Strict')
+        set_access_cookies(response, access_token, secure=True, httponly=True, samesite='Strict')
 
         return response, 200
     else:
