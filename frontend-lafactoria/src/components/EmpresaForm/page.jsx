@@ -39,7 +39,7 @@ function EmpresaForm() {
 
     try {
       // Obtener el token de las cookies (o de localStorage, dependiendo de dónde lo guardaste)
-      const token = Cookies.get('token');
+      const token = Cookies.get('access_token');
       console.log("TOKEN JWT:", token);
       if (!token) {
         // Si no hay token, redirige al login o muestra un error
