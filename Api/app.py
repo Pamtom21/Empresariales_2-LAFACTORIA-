@@ -64,7 +64,7 @@ def log():
             'message': 'Credenciales correctas',
             'Nombre': usuario.razon
         }))
-        set_access_cookies(response, access_token, secure=True, httponly=True, samesite='Strict')
+        set_access_cookies(response, access_token)
 
         return response, 200
     else:
