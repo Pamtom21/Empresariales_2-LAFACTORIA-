@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-
+import Cookies from 'js-cookie';
 const API = process.env.REACT_APP_API;
 
 function BuscarEmpresa() {
   const [rut, setRut] = useState('');
   const [resultado, setResultado] = useState(null);
-
+  const token = Cookies.get('access_token');
+  if (!token) {
+        // Si no hay token, redirige al login o muestra un error
+    setError('No estás autenticado. Por favor, inicia sesión.');
+    return;
+  }
   const buscarEmpresa = async () => {
     const res = await fetch(`${API}/empresas/buscar`, {
       method: 'POST',
