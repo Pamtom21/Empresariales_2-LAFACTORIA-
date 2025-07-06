@@ -15,8 +15,6 @@ jwt = JWTManager(app)
 db.init_app(app)
 with app.app_context():
     db.create_all()
-from flask import request, jsonify
-from werkzeug.security import generate_password_hash
 
 @app.route('/register', methods=['POST'])
 def reg():
