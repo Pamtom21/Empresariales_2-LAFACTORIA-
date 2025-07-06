@@ -4,13 +4,14 @@ from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
 
 
 app = Flask(__name__)
 
 app.config.from_object(Config)
 CORS(app)
+jwt = JWTManager(app)
 db.init_app(app)
 with app.app_context():
     db.create_all()
