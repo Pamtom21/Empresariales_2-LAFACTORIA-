@@ -93,7 +93,8 @@ def crear_empresa():
         if Empresas.query.filter_by(rut=data['rut']).first():
             return jsonify({"mensaje": "El rut ya está registrado"}), 402
 
-        usuario = Usuario.query.get(usuario_id)
+        usuario = Usuario.query.filter_by(rut=usuario_id).first()
+        print(usuario)
         if not usuario:
             return jsonify({"mensaje": "Usuario no encontrado"}), 403
 
