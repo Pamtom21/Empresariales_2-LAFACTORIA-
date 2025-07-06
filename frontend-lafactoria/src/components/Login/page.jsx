@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tab, Tabs, Form, Button, Card } from 'react-bootstrap';
-import Cookies from 'js-cookie';  // Importamos js-cookie
+import Cookies from 'js-cookie';
 
 const API = process.env.REACT_APP_API;
 
@@ -9,6 +9,11 @@ function Login() {
   const [tab, setTab] = useState('login');
   const [rutLogin, setRutLogin] = useState('');
   const [clave, setClave] = useState('');
+  const [razon, setRazon] = useState('');
+  const [rut, setRut] = useState('');
+  const [giro, setGiro] = useState('');
+  const [correoReg, setCorreoReg] = useState('');
+  const [claveReg, setClaveReg] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -31,7 +36,7 @@ function Login() {
       const result = await response.json();
 
       if (response.ok) {
-        // Si las credenciales son correctas, guardamos el token en las cookies
+        // Guardamos el token en las cookies si el login es exitoso
         Cookies.set('access_token', result.token, {
           expires: 7, // El token expirará en 7 días
           secure: true,  // Asegura que se envíe solo a través de HTTPS
