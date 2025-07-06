@@ -62,7 +62,8 @@ def log():
         # Crear la respuesta y agregar el token en la cookie
         response = jsonify({
             'message': 'Credenciales correctas',
-            'Nombre': usuario.razon
+            'Nombre': usuario.razon,
+            'token' : access_token
         })
 
         return response, 200
