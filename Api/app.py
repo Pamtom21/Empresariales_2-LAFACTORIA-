@@ -104,7 +104,7 @@ def crear_empresa():
             giro=data.get('giro'),
             direccion=data.get('direccion'),
             correo=data.get('correo'),
-            usuario_id=usuario_id
+            usuario_id=usuario.id
         )
 
         db.session.add(nueva_empresa)
