@@ -56,7 +56,7 @@ function EmpresaForm() {
         },
         body: JSON.stringify(form)
       });
-
+      console.log(res)
       if (res.ok) {
         alert("✅ Empresa creada correctamente");
         setForm({ nombre: '', rut: '', giro: '', direccion: '', correo: '' });
