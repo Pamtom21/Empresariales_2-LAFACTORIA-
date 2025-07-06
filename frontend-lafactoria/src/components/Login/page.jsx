@@ -42,7 +42,6 @@ function Login() {
           expires: 7, // El token expirará en 7 días
           secure: true,  // Asegura que se envíe solo a través de HTTPS
           sameSite: 'Strict',  // Protege contra CSRF
-          httpOnly: true,  // Previene el acceso desde JavaScript (mejora la seguridad)
         });
 
         alert(`Bienvenido ${result.Nombre}`);
