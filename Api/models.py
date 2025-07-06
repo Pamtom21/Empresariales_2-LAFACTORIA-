@@ -4,7 +4,7 @@ import uuid
 
 db = SQLAlchemy()
 
-class Empresa(db.Model):
+class Empresas(db.Model):
     __tablename__ = 'empresa'
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

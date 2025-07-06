@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, Empresa, Factura, Usuario, Pago
+from models import db, Empresas, Factura, Usuario, Pago
 from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
@@ -22,13 +22,7 @@ migrate = Migrate(app, db)
 
 # ✅ Aplica migraciones automáticamente en Render (en vez de db.create_all())
 with app.app_context():
-    print("📦 Aplicando migraciones automáticamente en producción...")
-    try:
-        upgrade()
-    except Exception as e:
-        print("⚠️ Error al aplicar migraciones:")
-        traceback.print_exc()  
-
+    db.create_all()
 @app.route('/register', methods=['POST'])
 def reg():
     data = request.json  # Obtener los datos enviados por el cliente
@@ -96,14 +90,14 @@ def crear_empresa():
         usuario_id = get_jwt_identity()
         print("🧑 ID del usuario autenticado:", usuario_id)
 
-        if Empresa.query.filter_by(rut=data['rut']).first():
+        if Empresas.query.filter_by(rut=data['rut']).first():
             return jsonify({"mensaje": "El rut ya está registrado"}), 400
 
         usuario = Usuario.query.get(usuario_id)
         if not usuario:
             return jsonify({"mensaje": "Usuario no encontrado"}), 400
 
-        nueva_empresa = Empresa(
+        nueva_empresa = Empresas(
             nombre=data['nombre'],
             rut=data['rut'],
             giro=data.get('giro'),
