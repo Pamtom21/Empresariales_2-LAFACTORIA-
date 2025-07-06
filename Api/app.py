@@ -89,11 +89,10 @@ def crear_empresa():
 
         usuario_id = get_jwt_identity()
         print("🧑 ID del usuario autenticado:", usuario_id)
-
-        if Empresas.query.filter_by(rut=data['rut']).first():
-            return jsonify({"mensaje": "El rut ya está registrado"}), 402
-
         usuario = Usuario.query.filter_by(rut=usuario_id).first()
+        if Empresas.query.filter_by(rut=data['rut'], usuario_id = usuario.id).first():
+            return jsonify({"mensaje": "El rut ya está registrado"}), 402
+        
         print(usuario)
         if not usuario:
             return jsonify({"mensaje": "Usuario no encontrado"}), 403
@@ -177,15 +176,17 @@ def crear_factura():
         #"libredte": resultado_dte
     }), 201
 @app.route('/empresas/buscar', methods=['POST'])
+@jwt_required()
 def buscar_empresa_por_rut():
     data = request.json
     rut = data.get('rut')
 
     if not rut:
         return jsonify({'error': 'Debe proporcionar un RUT'}), 400
-
-    empresa = Empresas.query.filter_by(rut=rut).first()
-
+    usuario_id = get_jwt_identity()
+    usuario = Usuario.query.filter_by(rut=usuario_id).first()
+    empresa = Empresas.query.filter_by(rut=rut, usuario_id = usuario ).first()
+    
     if not empresa:
         return jsonify({'error': 'Empresa no encontrada'}), 404
 
