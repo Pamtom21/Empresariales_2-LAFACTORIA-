@@ -4,6 +4,7 @@ from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
 app = Flask(__name__)
@@ -43,6 +44,9 @@ def reg():
         return jsonify({"error": str(e)}), 400
 
 
+from flask_jwt_extended import create_access_token
+from flask import make_response
+
 @app.route('/login', methods=['POST'])
 def log():
     data = request.json
@@ -53,30 +57,41 @@ def log():
     usuario = Usuario.query.filter_by(rut=rut).first()
 
     if usuario and usuario.check_password(clave):  # Verificamos la contraseña
-        return jsonify({
+        # Generar el token de acceso
+        access_token = create_access_token(identity=usuario.rut)
+
+        # Crear la respuesta y agregar el token en la cookie
+        response = make_response(jsonify({
             'message': 'Credenciales correctas',
             'Nombre': usuario.razon
-        }), 200  # Respuesta exitosa
-    else:
-        return jsonify({'message': 'Credenciales incorrectas'}), 400  # Respuesta de error
+        }))
+        response.set_cookie('authToken', access_token, httponly=True, secure=True, samesite='Strict')
 
+        return response, 200
+    else:
+        return jsonify({'message': 'Credenciales incorrectas'}), 400
 
 @app.route('/empresas', methods=['POST'])
+@jwt_required()  # Este decorador asegura que el usuario esté autenticado
 def crear_empresa():
     try:
         data = request.json
-
+        
         # Validar que los campos esenciales estén presentes
-        if 'nombre' not in data or 'rut' not in data or 'usuario_id' not in data:
-            return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut, usuario_id)"}), 400
-
+        if 'nombre' not in data or 'rut' not in data:
+            return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut)"}), 400
+        
+        # Obtener el usuario_id del token JWT
+        usuario_id = get_jwt_identity()  # El ID del usuario autenticado
+        
         # Verificar si el 'rut' ya existe en la base de datos
         if Empresa.query.filter_by(rut=data['rut']).first():
             return jsonify({"mensaje": "El rut ya está registrado"}), 400
 
         # Verificar si el usuario con el 'usuario_id' existe
-        if not Usuario.query.filter_by(id=data['usuario_id']).first():
-            return jsonify({"mensaje": "El usuario no existe"}), 400
+        usuario = Usuario.query.get(usuario_id)
+        if not usuario:
+            return jsonify({"mensaje": "Usuario no encontrado"}), 400
 
         # Crear la nueva empresa
         nueva_empresa = Empresa(
@@ -85,7 +100,7 @@ def crear_empresa():
             giro=data.get('giro'),  # Uso de .get() para campos opcionales
             direccion=data.get('direccion'),
             correo=data.get('correo'),
-            usuario_id=data['usuario_id']  # Asignación del usuario_id
+            usuario_id=usuario_id  # Asignación del usuario_id
         )
 
         # Añadir la empresa a la base de datos
@@ -99,7 +114,6 @@ def crear_empresa():
         # Si ocurre un error, hacer rollback y devolver el error
         db.session.rollback()
         return jsonify({"mensaje": "Error al crear la empresa", "error": str(e)}), 500
-
 
 @app.route('/facturas', methods=['POST'])
 def crear_factura():

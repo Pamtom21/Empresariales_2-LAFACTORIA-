@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 
 const API = process.env.REACT_APP_API;
 
@@ -12,7 +13,7 @@ function EmpresaForm() {
   });
 
   const [error, setError] = useState('');
-  
+
   // Manejo de cambios en los inputs
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,7 +27,7 @@ function EmpresaForm() {
     return null;
   };
 
-  // Enviar formulario al servidor
+  // Función para enviar el formulario con el token
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -37,10 +38,22 @@ function EmpresaForm() {
     }
 
     try {
-      // Supongo que el usuario_id se agrega a través del contexto o es capturado del usuario logueado
+      // Obtener el token de las cookies (o de localStorage, dependiendo de dónde lo guardaste)
+      const token = Cookies.get('token');
+      
+      if (!token) {
+        // Si no hay token, redirige al login o muestra un error
+        setError('No estás autenticado. Por favor, inicia sesión.');
+        return;
+      }
+
+      // Enviar la solicitud POST para crear la empresa
       const res = await fetch(`${API}/empresas`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,  // Agregar el token en las cabeceras
+        },
         body: JSON.stringify(form)
       });
 
