@@ -63,17 +63,43 @@ def log():
 
 @app.route('/empresas', methods=['POST'])
 def crear_empresa():
-    data = request.json
-    nueva_empresa = Empresa(
-        nombre=data['nombre'],
-        rut=data['rut'],
-        giro=data.get('giro'),
-        direccion=data.get('direccion'),
-        correo=data.get('correo')
-    )
-    db.session.add(nueva_empresa)
-    db.session.commit()
-    return jsonify({"mensaje": "Empresa creada", "id": nueva_empresa.id}), 201
+    try:
+        data = request.json
+
+        # Validar que los campos esenciales estén presentes
+        if 'nombre' not in data or 'rut' not in data or 'usuario_id' not in data:
+            return jsonify({"mensaje": "Faltan campos requeridos (nombre, rut, usuario_id)"}), 400
+
+        # Verificar si el 'rut' ya existe en la base de datos
+        if Empresa.query.filter_by(rut=data['rut']).first():
+            return jsonify({"mensaje": "El rut ya está registrado"}), 400
+
+        # Verificar si el usuario con el 'usuario_id' existe
+        if not Usuario.query.filter_by(id=data['usuario_id']).first():
+            return jsonify({"mensaje": "El usuario no existe"}), 400
+
+        # Crear la nueva empresa
+        nueva_empresa = Empresa(
+            nombre=data['nombre'],
+            rut=data['rut'],
+            giro=data.get('giro'),  # Uso de .get() para campos opcionales
+            direccion=data.get('direccion'),
+            correo=data.get('correo'),
+            usuario_id=data['usuario_id']  # Asignación del usuario_id
+        )
+
+        # Añadir la empresa a la base de datos
+        db.session.add(nueva_empresa)
+        db.session.commit()
+
+        # Responder con éxito
+        return jsonify({"mensaje": "Empresa creada", "id": nueva_empresa.id}), 201
+    
+    except Exception as e:
+        # Si ocurre un error, hacer rollback y devolver el error
+        db.session.rollback()
+        return jsonify({"mensaje": "Error al crear la empresa", "error": str(e)}), 500
+
 
 @app.route('/facturas', methods=['POST'])
 def crear_factura():
