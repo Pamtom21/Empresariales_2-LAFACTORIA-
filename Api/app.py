@@ -126,7 +126,7 @@ def crear_factura():
     total = round(valor_neto + iva, 2)
 
     # Buscar la empresa emisora
-    empresa = Empresa.query.get(data['empresa_id'])
+    empresa = Empresas.query.get(data['empresa_id'])
     if not empresa:
         return jsonify({"error": "Empresa no encontrada"}), 404
 
@@ -183,7 +183,7 @@ def buscar_empresa_por_rut():
     if not rut:
         return jsonify({'error': 'Debe proporcionar un RUT'}), 400
 
-    empresa = Empresa.query.filter_by(rut=rut).first()
+    empresa = Empresas.query.filter_by(rut=rut).first()
 
     if not empresa:
         return jsonify({'error': 'Empresa no encontrada'}), 404
