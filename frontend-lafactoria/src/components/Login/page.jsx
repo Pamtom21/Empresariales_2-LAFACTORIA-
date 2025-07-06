@@ -20,7 +20,7 @@ const handleLogin = async (e) => {
 
   const loginData = {
     rut: rutLogin,
-    clave: claveLogin,
+    clave: clave,
   };
 
   try {
