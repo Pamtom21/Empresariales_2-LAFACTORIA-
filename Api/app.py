@@ -44,8 +44,6 @@ def reg():
         return jsonify({"error": str(e)}), 400
 
 
-from flask_jwt_extended import create_access_token
-
 
 @app.route('/login', methods=['POST'])
 def log():

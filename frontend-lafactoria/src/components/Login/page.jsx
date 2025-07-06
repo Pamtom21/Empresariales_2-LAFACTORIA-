@@ -34,6 +34,7 @@ function Login() {
       });
 
       const result = await response.json();
+      console.log(result)
 
       if (response.ok) {
         // Guardamos el token en las cookies si el login es exitoso
