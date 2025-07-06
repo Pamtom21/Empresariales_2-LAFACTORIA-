@@ -1,21 +1,33 @@
 from flask import Flask, request, jsonify
-from models import db, Empresa, Factura, Usuario
+from models import db, Empresa, Factura, Usuario, Pago
 from config import Config
-from models import Pago
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
 from datetime import datetime
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager, set_access_cookies
+from flask_jwt_extended import (
+    create_access_token, jwt_required, get_jwt_identity,
+    JWTManager
+)
 import traceback
+from flask_migrate import Migrate, upgrade  # ← importante
 
 app = Flask(__name__)
-
 app.config.from_object(Config)
-CORS(app,supports_credentials=True)
+
+CORS(app, supports_credentials=True)
 jwt = JWTManager(app)
+
 db.init_app(app)
+migrate = Migrate(app, db)
+
+# ✅ Aplica migraciones automáticamente en Render (en vez de db.create_all())
 with app.app_context():
-    db.create_all()
+    print("📦 Aplicando migraciones automáticamente en producción...")
+    try:
+        upgrade()
+    except Exception as e:
+        print("⚠️ Error al aplicar migraciones:")
+        traceback.print_exc()  
 
 @app.route('/register', methods=['POST'])
 def reg():
