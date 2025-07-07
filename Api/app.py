@@ -23,6 +23,20 @@ db.init_app(app)
 # ✅ Aplica migraciones automáticamente en Render (en vez de db.create_all())
 with app.app_context():
     db.create_all()
+@app.route('/productos/listar', methods=['POST'])
+@jwt_required()
+def listar_productos():
+    usuario_id = get_jwt_identity()
+    productos = Producto.query.filter_by(usuario_id=usuario_id).all()
+
+    return jsonify([
+        {
+            'id': p.id,
+            'nombre': p.nombre,
+            'precio': p.precio,
+            'imagen': p.imagen
+        } for p in productos
+    ])
 @app.route('/productos', methods=['POST'])
 @jwt_required()
 def crear_producto():

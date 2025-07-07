@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import Cookies from 'js-cookie';
+
 const API = process.env.REACT_APP_API;
+
 function Catalogos({ productos, setProductos, agregarAlCarrito }) {
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
@@ -9,6 +11,8 @@ function Catalogos({ productos, setProductos, agregarAlCarrito }) {
   const [imagenFile, setImagenFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [mensaje, setMensaje] = useState('');
+
+  const token = Cookies.get('access_token');
 
   const handleImagenFileChange = (e) => {
     const file = e.target.files[0];
@@ -28,56 +32,88 @@ function Catalogos({ productos, setProductos, agregarAlCarrito }) {
     setPreview(url || null);
   };
 
-const handleAgregar = async () => {
-  if (!nombre || !precio) return;
+  const fetchProductos = async () => {
+    if (!token) {
+      setMensaje('⚠️ Usuario no autenticado');
+      return;
+    }
 
-  const token = Cookies.get('access_token'); // Asumiendo que guardas el JWT en localStorage
-  if (!token) {
-    setMensaje('⚠️ Usuario no autenticado');
-    return;
-  }
+    try {
+      const response = await fetch(`${API}/productos/listar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({}) // Si necesitas mandar datos, aquí van
+      });
 
-  const nuevoProducto = {
-    nombre,
-    precio: parseInt(precio),
-    imagen: preview || null
+      if (response.ok) {
+        const data = await response.json();
+        setProductos(data);
+      } else {
+        const error = await response.json();
+        console.error('Error al cargar productos:', error);
+        setMensaje('❌ No se pudieron cargar los productos');
+      }
+    } catch (err) {
+      console.error('Error de conexión:', err);
+      setMensaje('❌ Error al conectar con el servidor');
+    }
   };
 
-  try {
-    const response = await fetch(`${API}/productos`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(nuevoProducto),
-    });
+  const handleAgregar = async () => {
+    if (!nombre || !precio) return;
 
-    if (response.ok) {
-      const data = await response.json();
-      setProductos([...productos, { ...nuevoProducto, id: Date.now() }]);
-      setNombre('');
-      setPrecio('');
-      setImagenURL('');
-      setImagenFile(null);
-      setPreview(null);
-      setMensaje('✅ Producto agregado exitosamente');
-      setTimeout(() => setMensaje(''), 2000);
-    } else {
-      const error = await response.json();
-      setMensaje(`❌ Error al guardar: ${error.error || 'Error desconocido'}`);
+    if (!token) {
+      setMensaje('⚠️ Usuario no autenticado');
+      return;
     }
-  } catch (error) {
-    console.error('Error al conectar con la API:', error);
-    setMensaje('❌ Error de conexión con el servidor');
-  }
-};
+
+    const nuevoProducto = {
+      nombre,
+      precio: parseInt(precio),
+      imagen: preview || null
+    };
+
+    try {
+      const response = await fetch(`${API}/productos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(nuevoProducto),
+      });
+
+      if (response.ok) {
+        await fetchProductos(); // Re-cargar la lista desde el backend
+        setNombre('');
+        setPrecio('');
+        setImagenURL('');
+        setImagenFile(null);
+        setPreview(null);
+        setMensaje('✅ Producto agregado exitosamente');
+        setTimeout(() => setMensaje(''), 2000);
+      } else {
+        const error = await response.json();
+        setMensaje(`❌ Error al guardar: ${error.error || 'Error desconocido'}`);
+      }
+    } catch (error) {
+      console.error('Error al conectar con la API:', error);
+      setMensaje('❌ Error de conexión con el servidor');
+    }
+  };
 
   const handleAgregarAlCarrito = (producto) => {
     agregarAlCarrito(producto);
     setMensaje(`🛒 "${producto.nombre}" se ha añadido al carrito`);
     setTimeout(() => setMensaje(''), 2000);
   };
+
+  useEffect(() => {
+    fetchProductos();
+  }, []);
 
   return (
     <div>
@@ -170,3 +206,4 @@ const handleAgregar = async () => {
 }
 
 export default Catalogos;
+
