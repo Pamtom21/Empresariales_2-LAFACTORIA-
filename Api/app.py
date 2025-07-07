@@ -173,30 +173,29 @@ def crear_factura():
     productos = data.get('productos', [])
 
     # Enviar a LibreDTE
-    #resultado_dte = enviar_dte(
-    ##    data_empresa={
-    #        "rut": empresa.rut,
-    #        "nombre": empresa.nombre,
-    #        "giro": empresa.giro,
-    #        "direccion": empresa.direccion
-    #    },
-    #    data_cliente=cliente,
-    #    productos=productos
-    #)
+    resultado_dte = enviar_dte(
+        data_empresa={
+            "rut": empresa.rut,
+            "nombre": empresa.nombre,
+            "giro": empresa.giro,
+            "direccion": empresa.direccion
+        },
+        data_cliente=cliente,
+        productos=productos
+    )
 
-    #if 'estado' not in resultado_dte or resultado_dte['estado'] != 0:
-    #    return jsonify({
-    #        "error": "Error al generar la factura electrónica",
-    #        "detalle": resultado_dte
-    #    }), 400
+    if 'estado' not in resultado_dte or resultado_dte['estado'] != 0:
+        return jsonify({
+            "error": "Error al generar la factura electrónica",
+            "detalle": resultado_dte
+        }), 400
 
     # Guardar factura localmente
     nueva_factura = Factura(
         empresa_id=data['empresa_id'],
         valor_neto=valor_neto,
         valor_con_iva=total,
-        productos=str(productos),
-        fecha=datetime.now()
+        productos=str(productos)
     )
     db.session.add(nueva_factura)
     db.session.commit()
@@ -205,7 +204,7 @@ def crear_factura():
         "mensaje": "Factura creada y enviada correctamente",
         "id": nueva_factura.id,
         "valor_con_iva": total,
-        #"libredte": resultado_dte
+        "libredte": resultado_dte
     }), 201
 @app.route('/empresas/buscar', methods=['POST'])
 @jwt_required()
