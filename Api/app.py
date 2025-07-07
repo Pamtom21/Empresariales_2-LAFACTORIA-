@@ -151,14 +151,16 @@ def crear_empresa():
 
 
 @app.route('/facturas', methods=['POST'])
+@jwt_required()
 def crear_factura():
     data = request.json
     valor_neto = float(data['valor_neto'])
     iva = round(valor_neto * 0.19, 2)
     total = round(valor_neto + iva, 2)
-
+    usuario_id = get_jwt_identity()
+    
     # Buscar la empresa emisora
-    empresa = Empresas.query.get(data['empresa_id'])
+    empresa = Usuario.query.get(usuario_id)
     if not empresa:
         return jsonify({"error": "Empresa no encontrada"}), 404
 
