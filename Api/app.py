@@ -9,7 +9,7 @@ from flask_jwt_extended import (
     JWTManager
 )
 import traceback
-from flask_migrate import Migrate, upgrade  # ← importante
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
