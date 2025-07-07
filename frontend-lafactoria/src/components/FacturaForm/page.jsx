@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import Cookies from 'js-cookie';
 const API = process.env.REACT_APP_API;
 
 function FacturaForm() {
@@ -9,11 +9,13 @@ function FacturaForm() {
     valor_neto: '',
     producto: ''
   });
-
+  const token = Cookies.get('access_token');
   useEffect(() => {
     fetch(`${API}/empresas`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+       }
     })
       .then(res => res.json())
       .then(data => setEmpresas(data));
@@ -30,7 +32,9 @@ function FacturaForm() {
 
     const res = await fetch(`${API}/facturas`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+       },
       body: JSON.stringify({
         empresa_id: form.empresa_id,
         valor_neto: form.valor_neto,
