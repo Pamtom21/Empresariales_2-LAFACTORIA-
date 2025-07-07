@@ -11,7 +11,7 @@ function FacturaForm() {
   });
   const token = Cookies.get('access_token');
   useEffect(() => {
-    fetch(`${API}/empresas`, {
+    fetch(`${API}/empresas/buscar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
