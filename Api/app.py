@@ -185,6 +185,7 @@ def buscar_empresa_por_rut():
         return jsonify({'error': 'Debe proporcionar un RUT'}), 400
     usuario_id = get_jwt_identity()
     usuario = Usuario.query.filter_by(rut=usuario_id).first()
+    print(usuario.id)
     empresa = Empresas.query.filter_by(rut=rut, usuario_id = usuario ).first()
     
     if not empresa:
