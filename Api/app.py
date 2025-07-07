@@ -186,7 +186,7 @@ def buscar_empresa_por_rut():
     usuario_id = get_jwt_identity()
     usuario = Usuario.query.filter_by(rut=usuario_id).first()
     print(usuario.id)
-    empresa = Empresas.query.filter_by(rut=rut, usuario_id = usuario ).first()
+    empresa = Empresas.query.filter_by(rut=rut, usuario_id = usuario.id ).first()
     
     if not empresa:
         return jsonify({'error': 'Empresa no encontrada'}), 404
