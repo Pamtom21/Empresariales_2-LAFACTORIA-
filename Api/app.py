@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from models import db, Empresas, Factura, Usuario, Pago
+from models import db, Empresas, Factura, Usuario, Pago, Producto
 from config import Config
 from servicios.libredte import enviar_dte
 from flask_cors import CORS
@@ -23,6 +23,24 @@ db.init_app(app)
 # ✅ Aplica migraciones automáticamente en Render (en vez de db.create_all())
 with app.app_context():
     db.create_all()
+@app.route('/productos', methods=['POST'])
+@jwt_required()
+def crear_producto():
+    data = request.json
+    usuario_id = get_jwt_identity()  # El rut del usuario
+
+    nuevo_producto = Producto(
+        nombre=data['nombre'],
+        precio=data['precio'],
+        imagen=data.get('imagen'),
+        usuario_id=usuario_id
+    )
+
+    db.session.add(nuevo_producto)
+    db.session.commit()
+
+    return jsonify({'mensaje': 'Producto creado correctamente'}), 201
+
 @app.route('/register', methods=['POST'])
 def reg():
     data = request.json  # Obtener los datos enviados por el cliente

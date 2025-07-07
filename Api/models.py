@@ -4,6 +4,22 @@ import uuid
 
 db = SQLAlchemy()
 
+
+class Producto(db.Model):
+    __tablename__ = 'producto'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False)
+    precio = db.Column(db.Integer, nullable=False)
+    imagen = db.Column(db.String(255))  # Puede contener la URL o el nombre del archivo si se guarda local
+    usuario_id = db.Column(db.String(36), db.ForeignKey('usuario.rut'), nullable=False)
+
+    # Relación (opcional, para acceder al usuario directamente desde producto)
+    usuario = db.relationship('Usuario', backref=db.backref('productos', lazy=True))
+
+    def __repr__(self):
+        return f'<Producto {self.nombre} - ${self.precio}>'
+
 class Empresas(db.Model):
     __tablename__ = 'empresas'
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
-
+import Cookies from 'js-cookie';
+const API = process.env.REACT_APP_API;
 function Catalogos({ productos, setProductos, agregarAlCarrito }) {
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
@@ -27,23 +28,50 @@ function Catalogos({ productos, setProductos, agregarAlCarrito }) {
     setPreview(url || null);
   };
 
-  const handleAgregar = () => {
-    if (!nombre || !precio) return;
+const handleAgregar = async () => {
+  if (!nombre || !precio) return;
 
-    const nuevoProducto = {
-      id: Date.now(),
-      nombre,
-      precio: parseInt(precio),
-      imagen: preview || null
-    };
+  const token = Cookies.get('access_token'); // Asumiendo que guardas el JWT en localStorage
+  if (!token) {
+    setMensaje('⚠️ Usuario no autenticado');
+    return;
+  }
 
-    setProductos([...productos, nuevoProducto]);
-    setNombre('');
-    setPrecio('');
-    setImagenURL('');
-    setImagenFile(null);
-    setPreview(null);
+  const nuevoProducto = {
+    nombre,
+    precio: parseInt(precio),
+    imagen: preview || null
   };
+
+  try {
+    const response = await fetch(`${API}/productos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(nuevoProducto),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setProductos([...productos, { ...nuevoProducto, id: Date.now() }]);
+      setNombre('');
+      setPrecio('');
+      setImagenURL('');
+      setImagenFile(null);
+      setPreview(null);
+      setMensaje('✅ Producto agregado exitosamente');
+      setTimeout(() => setMensaje(''), 2000);
+    } else {
+      const error = await response.json();
+      setMensaje(`❌ Error al guardar: ${error.error || 'Error desconocido'}`);
+    }
+  } catch (error) {
+    console.error('Error al conectar con la API:', error);
+    setMensaje('❌ Error de conexión con el servidor');
+  }
+};
 
   const handleAgregarAlCarrito = (producto) => {
     agregarAlCarrito(producto);
