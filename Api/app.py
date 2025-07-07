@@ -22,7 +22,6 @@ db.init_app(app)
 
 # ✅ Aplica migraciones automáticamente en Render (en vez de db.create_all())
 with app.app_context():
-    db.drop_all()
     db.create_all()
 @app.route('/register', methods=['POST'])
 def reg():
