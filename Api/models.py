@@ -9,7 +9,7 @@ class Empresas(db.Model):
 
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     nombre = db.Column(db.String(255), nullable=False)
-    rut = db.Column(db.String(20), unique=True, nullable=False)
+    rut = db.Column(db.String(20), unique=False, nullable=False)
     giro = db.Column(db.String(255), nullable=True)
     direccion = db.Column(db.String(255), nullable=True)
     correo = db.Column(db.String(255), nullable=True)
