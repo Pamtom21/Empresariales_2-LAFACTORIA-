@@ -8,11 +8,14 @@ const API = process.env.REACT_APP_API;
 function Compras({ carrito }) {
   const [mensaje, setMensaje] = useState('');
   const [clienteRut, setClienteRut] = useState('');
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteDireccion, setClienteDireccion] = useState('');
   const navigate = useNavigate();
   const token = Cookies.get('access_token');
 
   const total = carrito.reduce((sum, prod) => sum + prod.precio, 0);
 
+  // Buscar empresa receptora para obtener datos completos (opcional)
   const buscarEmpresaReceptora = async (rut) => {
     try {
       const res = await fetch(`${API}/empresas/buscar`, {
@@ -48,8 +51,21 @@ function Compras({ carrito }) {
       return;
     }
 
-    const empresaReceptora = await buscarEmpresaReceptora(clienteRut);
-    if (!empresaReceptora) return;
+    // Opcional: si quieres que busque los datos automáticamente:
+    let empresaReceptora = null;
+    if (!clienteNombre || !clienteDireccion) {
+      empresaReceptora = await buscarEmpresaReceptora(clienteRut);
+      if (!empresaReceptora) return;
+    }
+
+    // Usa los datos ingresados manualmente o los obtenidos por búsqueda
+    const nombreClienteFinal = clienteNombre || (empresaReceptora && empresaReceptora.nombre) || '';
+    const direccionClienteFinal = clienteDireccion || (empresaReceptora && empresaReceptora.direccion) || '';
+
+    if (!nombreClienteFinal || !direccionClienteFinal) {
+      setMensaje('⚠️ Debes proporcionar nombre y dirección del cliente receptor');
+      return;
+    }
 
     try {
       const productos = carrito.map((prod) => ({
@@ -66,9 +82,9 @@ function Compras({ carrito }) {
         body: JSON.stringify({
           valor_neto: total,
           productos,
-          cliente_rut: empresaReceptora.rut,
-          cliente_nombre: empresaReceptora.nombre,
-          cliente_direccion: empresaReceptora.direccion || 'Sin dirección',
+          cliente_rut: clienteRut,
+          cliente_nombre: nombreClienteFinal,
+          cliente_direccion: direccionClienteFinal,
         }),
       });
 
@@ -108,6 +124,26 @@ function Compras({ carrito }) {
         />
       </Form.Group>
 
+      <Form.Group className="mb-3">
+        <Form.Label>Nombre empresa receptora</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Nombre de la empresa receptora"
+          value={clienteNombre}
+          onChange={(e) => setClienteNombre(e.target.value)}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Dirección empresa receptora</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Dirección de la empresa receptora"
+          value={clienteDireccion}
+          onChange={(e) => setClienteDireccion(e.target.value)}
+        />
+      </Form.Group>
+
       {carrito.length === 0 ? (
         <p className="text-muted">Tu carrito está vacío.</p>
       ) : (
@@ -129,4 +165,5 @@ function Compras({ carrito }) {
 }
 
 export default Compras;
+
 
